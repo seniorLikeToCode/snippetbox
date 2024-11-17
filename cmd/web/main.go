@@ -6,15 +6,17 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"text/template"
 
 	_ "github.com/go-sql-driver/mysql"
 	"snippet.abhishek/internal/models"
 )
 
 type application struct {
-	errorLog *log.Logger
-	infoLog  *log.Logger
-	snippets *models.SnippetModel
+	errorLog      *log.Logger
+	infoLog       *log.Logger
+	snippets      *models.SnippetModel
+	templateCache map[string]*template.Template
 }
 
 // The openDB() function wraps sql.Open() and returns a sql.DB connection pool for a given DSN
@@ -49,11 +51,17 @@ func main() {
 
 	defer db.Close()
 
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+
 	// add logger to the application
 	app := &application{
-		infoLog:  infoLog,
-		errorLog: errorLog,
-		snippets: &models.SnippetModel{DB: db},
+		infoLog:       infoLog,
+		errorLog:      errorLog,
+		snippets:      &models.SnippetModel{DB: db},
+		templateCache: templateCache,
 	}
 
 	// add addr, errorlog, handler to the server
