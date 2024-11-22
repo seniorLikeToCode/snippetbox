@@ -8,6 +8,7 @@ import (
 	"os"
 	"text/template"
 
+	"github.com/go-playground/form/v4"
 	_ "github.com/go-sql-driver/mysql"
 	"snippet.abhishek/internal/models"
 )
@@ -17,6 +18,7 @@ type application struct {
 	infoLog       *log.Logger
 	snippets      *models.SnippetModel
 	templateCache map[string]*template.Template
+	formDecoder   *form.Decoder
 }
 
 // The openDB() function wraps sql.Open() and returns a sql.DB connection pool for a given DSN
@@ -62,6 +64,7 @@ func main() {
 		errorLog:      errorLog,
 		snippets:      &models.SnippetModel{DB: db},
 		templateCache: templateCache,
+		formDecoder:   form.NewDecoder(),
 	}
 
 	// add addr, errorlog, handler to the server
